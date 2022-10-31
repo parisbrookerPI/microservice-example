@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 // core attrs
 interface TicketAttrs {
@@ -12,6 +13,8 @@ interface TicketDoc extends mongoose.Document {
   title: string;
   price: number;
   userId: string;
+  version: number; //Updated __v to version
+  orderId?: string;
 }
 
 // the build function that allows TypeScript to be happy
@@ -33,6 +36,7 @@ const ticketSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    orderId: { type: String },
   },
   {
     toJSON: {
@@ -43,6 +47,12 @@ const ticketSchema = new mongoose.Schema(
     },
   }
 );
+
+//Changes __v to version
+ticketSchema.set("versionKey", "version");
+
+// Initializes plugin
+ticketSchema.plugin(updateIfCurrentPlugin);
 
 ticketSchema.statics.build = (attrs: TicketAttrs) => {
   return new Ticket(attrs);

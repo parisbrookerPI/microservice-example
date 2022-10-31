@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import { app } from "./app";
 import { natsWrapper } from "./NatsWrapper";
+import { TicketCreatedListener } from "./events/listeners/TicketCreatedListeners";
+import { TicketUpdatedListener } from "./events/listeners/TicketUpdatedListener";
 
 const start = async () => {
   if (!process.env.JWT_KEY) {
@@ -21,6 +23,8 @@ const start = async () => {
 
   console.log(process.env.NATS_CLIENT_ID);
 
+  //Nats and mongo connections
+
   try {
     await natsWrapper.connect(
       process.env.CLUSTER_ID,
@@ -35,6 +39,11 @@ const start = async () => {
 
     process.on("SIGINT", () => natsWrapper.client!.close());
     process.on("SIGTERM", () => natsWrapper.client!.close()); // Good practice not to hide this away in a class file
+
+    //Set up event listeners:
+
+    new TicketCreatedListener(natsWrapper.client).listen();
+    new TicketUpdatedListener(natsWrapper.client).listen();
 
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Mongo connection successful");

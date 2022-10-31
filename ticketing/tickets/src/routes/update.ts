@@ -4,6 +4,7 @@ import {
   NotFoundError,
   requireAuth,
   ForbiddenError,
+  BadRequestError,
 } from "@parisbtickets/common";
 import { Ticket } from "../models/Ticket";
 import { body } from "express-validator";
@@ -33,6 +34,10 @@ router.put(
       throw new ForbiddenError();
     }
 
+    if (ticket.orderId) {
+      throw new BadRequestError("Ticket is already reserved");
+    }
+
     ticket.set({
       title: req.body.title,
       price: req.body.price,
@@ -44,6 +49,7 @@ router.put(
       price: ticket.price,
       title: ticket.title,
       userId: ticket.userId,
+      version: ticket.version,
     });
 
     res.send(ticket);

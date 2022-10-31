@@ -2,7 +2,7 @@ import nats, { Stan } from "node-nats-streaming";
 
 class NatsWrapper {
   private _client?: Stan; // Not creating this until the Constructor is invoked (the instantiation call below)
-  // ? tells TS the variable me be undefined at certain times.
+  // ? tells TS the variable may be undefined at certain times.
 
   get client() {
     //geter prevents accessing the client before it's called
