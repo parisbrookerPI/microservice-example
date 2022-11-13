@@ -6,20 +6,24 @@ import jwt from "jsonwebtoken";
 // declare global {
 //   namespace NodeJS {
 //     export interface Global {
-//       signin(): Promise<string[]>;
+//       signin(id?: string): Promise<string[]>;
 //     }
 //   }
 // }
 
 declare global {
-  var signin: () => string[];
+  var signin: (id?: string) => string[];
 }
 
 jest.mock("../NatsWrapper.ts");
 
+process.env.STRIPE_KEY =
+  "sk_test_51M3LmEFZr4yUTPzDjkuWwBLhl8SnNtEH5x3AhTzqjilL73H3PcKyftOq5ARtHcAApBoyC2aPlee6P4YeJPCcOmgl00b33FNHo5";
+
 let mongo: any;
 beforeAll(async () => {
   process.env.JWT_KEY = "asdf";
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
   mongo = await MongoMemoryServer.create();
   const mongoUri = mongo.getUri();
 
@@ -43,12 +47,11 @@ afterAll(async () => {
 });
 
 //Helper function to get cokkie for other tests
-export = (global.signin = () => {
+export = (global.signin = (id?: string) => {
   // Build a jwt payload {id, email }
 
-  const id = new mongoose.Types.ObjectId().toHexString();
   const payload = {
-    id: `${id}`, //With the id hardcoded, can only have one user... need to make this dynamic
+    id: id || new mongoose.Types.ObjectId().toHexString(),
     email: "test@test.com",
   };
 

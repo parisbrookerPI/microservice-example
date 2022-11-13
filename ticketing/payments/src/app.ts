@@ -8,6 +8,7 @@ import {
   errorHandler,
   currentUser,
 } from "@parisbtickets/common";
+import { createChargeRouter } from "./routes/new";
 
 const app = express();
 app.set("trust proxy", true);
@@ -19,6 +20,8 @@ app.use(
   })
 );
 app.use(currentUser);
+
+app.use(createChargeRouter);
 
 app.all("*", async (req, res, next) => {
   throw new NotFoundError();
